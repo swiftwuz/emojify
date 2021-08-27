@@ -9,9 +9,7 @@ module Mutations
       begin
         emojify = Emoji.create!(emojify_params)
 
-        {
-          emojify: emojify
-        }
+        { emojify: emojify }
 
       rescue ActiveRecord::RecordInvalid => e
         GraphQL::ExecutionError.new("Invalid attributes for #{e.record.class}:"\
