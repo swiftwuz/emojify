@@ -1,15 +1,19 @@
 module Mutations
   class EmojifyText < Mutations::BaseMutation
-    argument :params, Types::Input::EmojifyInputType, required: true
+    include HTTParty
+    argument :sentence, String, required: true
 
-    field :emoji, Types::EmojifyType, null: false
+    ##field :emoji, String, null: false
+    # field :emoji, Types::EmojifyType, null: false
+    type String
 
-    def resolve(params:)
-      emojify_params = Hash params
+    def resolve(sentence:)
       begin
-        emojify = Emoji.create!(emojify_params)
-
-        { emojify: emojify }
+        response = HTTParty.post('http://localhost:5000/emojify', headers: {
+          'Content-Type' => 'application/json'}, body: { text: sentence }.to_json)
+          data = JSON.parse(response.body)
+          data['result']
+          
       rescue ActiveRecord::RecordInvalid => e
         GraphQL::ExecutionError.new("Invalid attributes for #{e.record.class}:"\
                                     " #{e.record.errors.full_messages.join(', ')}")
